@@ -5,29 +5,7 @@ import datetime
 import json
 import csv
 from send_email import send_notification
-"""
-import requests
-import certifi
 
-from send_email import send_notification
-
-
-import sys
-import re
-import time
-"""
-
-"""def getTitle(url):
-    try:
-        html = urlopen(url)
-    except HTTPError as e:
-        return None
-    try:
-        bs = BeautifulSoup(html.read(), 'html.parser')
-        title = bs.body.h1
-    except AttributeError as e:
-        return None
-    return title"""
 
 
 def getContainer(url):
@@ -115,12 +93,12 @@ def text_for_send(news):
 
 def add_footer():
     '''In that func contains text of message's footer.'''
-    footer = '\nОТКАЗАТЬСЯ от получения рассылок ▼ \n\nmailto:secretary@you-right.info?subject=UNSUBSCRIBE&body=Не%20присылайте%20больше%20писем'
+    footer = '\nОТКАЗАТЬСЯ от получения рассылок ▼ \n\nmailto:dmitryabov@yandex.ru?subject=UNSUBSCRIBE&body=Не%20присылайте%20больше%20писем'
     return footer
 
 
 def write_new_settings_json(settings):
-    with open('main_news_settings.json', 'w', encoding='utf-8') as file:
+    with open('news_settings.json', 'w', encoding='utf-8') as file:
         json.dump(settings, file, indent=4, ensure_ascii=False)
 
 
@@ -135,9 +113,12 @@ def get_adress_list(settings):
 def main():
     CSV = 'news_arbitr.ru.csv'
     container = getContainer('https://khakasia.arbitr.ru/news-isfb')
+    print(1)
     if container == None:
         print('Container could not be found')
     else:
+        court = 'Арбитражный суд Республики Хакасия'
+        print(2)
         settings = get_settings()
         last_date = settings['last_date']
         current_date = get_current_date(container)
@@ -149,18 +130,23 @@ def main():
             save_news(news, CSV)
             print('Новости сохранены')
             text = text_for_send(news)
-            subject = 'court' + ' | Новости на'
+            new_last_date = news[0]['news_date']
+            subject = court + ' | Новости на ' + new_last_date
             adress_list = get_adress_list(settings)
             send_notification(text, subject, adress_list)
-            new_last_date = news[0]['news_date']
             settings['last_date'] = new_last_date
             write_new_settings_json(settings)
         else:
             print('Новости ОТСУТСТВУЮТ\n')
     print('Работа скрипта ЗАВЕРШЕНА\n')
 
+
+if __name__ == "__main__":
+    main()
+
+# Написать цикл для проверки судов Тывы и Красноярского края
+# Написать проверку новостей не только по дате, но и по содержанию первой новости
 # Написать вывод в консоль время выполнения скрипта
-# Исправить ошибку проверки SSL
 # Написать функцию для работы с аргументами строки (с какой даты, выводить в консоль, отправлять по почте)
 # +Исправить функцию записи json, чтобы записывать красивые файлы
 # Написать функцию проверки по расписанию ???
@@ -170,4 +156,3 @@ def main():
 # +Переписать скрипт на __main__
 # +Написать функцию проверки даты последней новости, полученной при предыдущей проверке, и отбирающей только новые новости
 # +Написать функцию отправки новостей по электронной почте
-"""
