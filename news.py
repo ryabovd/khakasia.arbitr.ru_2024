@@ -113,12 +113,10 @@ def get_adress_list(settings):
 def main():
     CSV = 'news_arbitr.ru.csv'
     container = getContainer('https://khakasia.arbitr.ru/news-isfb')
-    print(1)
     if container == None:
         print('Container could not be found')
     else:
         court = 'Арбитражный суд Республики Хакасия'
-        print(2)
         settings = get_settings()
         last_date = settings['last_date']
         current_date = get_current_date(container)
