@@ -130,8 +130,6 @@ def get_name_court(soup):
 def date_today():
     '''Func that returned today date'''
     today = datetime.date.today()
-    #print('today', type(today))
-    #print(str(today.day) + '.' + str(today.month) + '.' + str(today.year))
     today_format = str(today.day) + '.' + str(today.month) + '.' + str(today.year)
     return today_format
 
@@ -149,7 +147,6 @@ def main():
         if container == None:
             print('Container could not be found')
         else:
-            #header = getHeader(webpage)
             court_name = court
             settings = get_settings()
             last_date = settings['last_date']
@@ -167,9 +164,6 @@ def main():
                 send_notification(text, subject, adress_list)
             else:
                 print(court_name, 'Новости ОТСУТСТВУЮТ\n')
-    # print('date_today()', date_today())            
-    # print('str(date_today())', str(date_today()))
-    # print('convert_date(str(date_today())', convert_date(str(date_today())))
     settings['last_date'] = date_today()
     write_new_settings_json(settings)
     print('Работа скрипта ЗАВЕРШЕНА\n')
@@ -179,9 +173,9 @@ if __name__ == "__main__":
     main()
 
 # Переписать сохранение новостей в json
-# Написать цикл для проверки судов Тывы и Красноярского края
+# +Написать цикл для проверки судов Тывы и Красноярского края
 # Написать проверку новостей не только по дате, но и по содержанию первой новости
-# Написать вывод в консоль время выполнения скрипта
+# +Написать вывод в консоль время выполнения скрипта
 # Написать функцию для работы с аргументами строки (с какой даты, выводить в консоль, отправлять по почте)
 # +Исправить функцию записи json, чтобы записывать красивые файлы
 # Написать функцию проверки по расписанию ???
