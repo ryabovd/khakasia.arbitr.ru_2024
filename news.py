@@ -8,6 +8,19 @@ from send_email import send_notification
 
 
 
+def getHeader(url):
+    try:
+        html = urlopen(url)
+    except HTTPError as e:
+        return None
+    try:
+        bs = BeautifulSoup(html.read(), 'html.parser')
+        header = bs.body.div.find('span', {'class': 'ac_name_first'})
+    except AttributeError as e:
+        return None
+    return header
+
+
 def getContainer(url):
     try:
         html = urlopen(url)
@@ -110,17 +123,22 @@ def get_adress_list(settings):
     return adress_list
 
 
+def get_name_court(soup):
+    name_court = 'Арбитражный суд ' + soup.text
+    return name_court    
+
+
 def main():
     CSV = 'news_arbitr.ru.csv'
     container = getContainer('https://khakasia.arbitr.ru/news-isfb')
     if container == None:
         print('Container could not be found')
     else:
-        court = 'Арбитражный суд Республики Хакасия'
+        header = getHeader('https://khakasia.arbitr.ru/news-isfb')
+        court = get_name_court(header)
         settings = get_settings()
         last_date = settings['last_date']
         current_date = get_current_date(container)
-        #print(current_date)
         if dates_diff(last_date, current_date) == True:
             print('Есть НОВОСТИ')
             news = get_news_from_contenteiner(container, last_date)
@@ -131,17 +149,18 @@ def main():
             new_last_date = news[0]['news_date']
             subject = court + ' | Новости на ' + new_last_date
             adress_list = get_adress_list(settings)
-            send_notification(text, subject, adress_list)
+            #send_notification(text, subject, adress_list)
             settings['last_date'] = new_last_date
-            write_new_settings_json(settings)
+            #write_new_settings_json(settings)
         else:
-            print('Новости ОТСУТСТВУЮТ\n')
+           print('Новости ОТСУТСТВУЮТ\n')
     print('Работа скрипта ЗАВЕРШЕНА\n')
 
 
 if __name__ == "__main__":
     main()
 
+# Переписать сохранение новостей в json
 # Написать цикл для проверки судов Тывы и Красноярского края
 # Написать проверку новостей не только по дате, но и по содержанию первой новости
 # Написать вывод в консоль время выполнения скрипта
