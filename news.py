@@ -7,7 +7,6 @@ import csv
 from send_email import send_notification
 
 
-
 def getHeader(url):
     try:
         html = urlopen(url)
@@ -125,35 +124,54 @@ def get_adress_list(settings):
 
 def get_name_court(soup):
     name_court = 'Арбитражный суд ' + soup.text
-    return name_court    
+    return name_court  
+
+
+def date_today():
+    '''Func that returned today date'''
+    today = datetime.date.today()
+    #print('today', type(today))
+    #print(str(today.day) + '.' + str(today.month) + '.' + str(today.year))
+    today_format = str(today.day) + '.' + str(today.month) + '.' + str(today.year)
+    return today_format
 
 
 def main():
+    courts_dict = {
+        'Арбитражный суд Республики Хакасия': 'https://khakasia.arbitr.ru/news-isfb',
+        'Арбитражный суд Республики Тыва': 'https://tyva.arbitr.ru/news-isfb',
+        'Третий арбитражный апелляционный суд': 'https://3aas.arbitr.ru/news-isfb',
+        'Арбитражный суд Восточно-Сибирского округа': 'https://fasvso.arbitr.ru/news-isfb'
+    }
     CSV = 'news_arbitr.ru.csv'
-    container = getContainer('https://khakasia.arbitr.ru/news-isfb')
-    if container == None:
-        print('Container could not be found')
-    else:
-        header = getHeader('https://khakasia.arbitr.ru/news-isfb')
-        court = get_name_court(header)
-        settings = get_settings()
-        last_date = settings['last_date']
-        current_date = get_current_date(container)
-        if dates_diff(last_date, current_date) == True:
-            print('Есть НОВОСТИ')
-            news = get_news_from_contenteiner(container, last_date)
-            print('\nНовости получены')
-            save_news(news, CSV)
-            print('Новости сохранены')
-            text = text_for_send(news)
-            new_last_date = news[0]['news_date']
-            subject = court + ' | Новости на ' + new_last_date
-            adress_list = get_adress_list(settings)
-            #send_notification(text, subject, adress_list)
-            settings['last_date'] = new_last_date
-            #write_new_settings_json(settings)
+    for court, webpage in courts_dict.items():
+        container = getContainer(webpage)
+        if container == None:
+            print('Container could not be found')
         else:
-           print('Новости ОТСУТСТВУЮТ\n')
+            #header = getHeader(webpage)
+            court_name = court
+            settings = get_settings()
+            last_date = settings['last_date']
+            current_date = get_current_date(container)
+            if dates_diff(last_date, current_date) == True:
+                print(court_name, 'Есть НОВОСТИ')
+                news = get_news_from_contenteiner(container, last_date)
+                print('Новости получены')
+                save_news(news, CSV)
+                print('Новости сохранены\n')
+                text = text_for_send(news)
+                new_last_date = news[0]['news_date']
+                subject = court_name + ' | Новости на ' + new_last_date
+                adress_list = get_adress_list(settings)
+                send_notification(text, subject, adress_list)
+            else:
+                print(court_name, 'Новости ОТСУТСТВУЮТ\n')
+    # print('date_today()', date_today())            
+    # print('str(date_today())', str(date_today()))
+    # print('convert_date(str(date_today())', convert_date(str(date_today())))
+    settings['last_date'] = date_today()
+    write_new_settings_json(settings)
     print('Работа скрипта ЗАВЕРШЕНА\n')
 
 
